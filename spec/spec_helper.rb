@@ -7,7 +7,7 @@ end
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'git-ssh-wrapper'
-require 'spec'
+require 'rspec'
 require 'open4'
 
 module TestPrivateKey
@@ -20,6 +20,6 @@ module TestPrivateKey
   end
 end
 
-Spec::Runner.configure do |config|
+RSpec.configure do |config|
   config.include TestPrivateKey
 end

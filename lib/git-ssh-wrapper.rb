@@ -12,21 +12,6 @@ class GitSSHWrapper
   SAFE_MODE = 0600
   EXEC_MODE = 0700
 
-  SSH_CONFIG = <<-CONFIG
-Host *
-PasswordAuthentication no
-StrictHostKeyChecking no
-RSAAuthentication yes
-ConnectTimeout 5
-IdentityFile %s
-CheckHostIP no
-  CONFIG
-
-  SCRIPT = <<-SCRIPT
-#!/bin/bash
-unset SSH_AUTH_SOCK
-ssh -F %s $*
-  SCRIPT
 
   def self.tempfile(content, mode=SAFE_MODE)
     file = Tempfile.new("git-ssh-wrapper")
@@ -51,19 +36,20 @@ ssh -F %s $*
       raise PrivateKeyRequired
     end
 
-    @tempfiles  = []
-    @key_path   = options[:private_key_path] || tempfile(options[:private_key])
-    @ssh_config = ssh_config(@key_path)
-    @path       = script(@ssh_config)
+    log_level  = (options[:log_level] || 'INFO').upcase
+    @tempfiles = []
+    key_path   = options[:private_key_path] || tempfile(options[:private_key])
+    @path      = script(key_path, log_level)
   end
 
   def pathname
     Pathname.new(path)
   end
 
-  def git_ssh
+  def cmd_prefix
     "GIT_SSH='#{path}'"
   end
+  alias git_ssh cmd_prefix
 
   def set_env
     ENV['GIT_SSH'] = path
@@ -75,12 +61,12 @@ ssh -F %s $*
 
   private
 
-  def script(config_path)
-    tempfile(SCRIPT % config_path, EXEC_MODE)
-  end
-
-  def ssh_config(private_key_path)
-    tempfile(SSH_CONFIG % private_key_path)
+  def script(private_key_path, log_level)
+    tempfile(<<-SCRIPT, EXEC_MODE)
+#!/bin/sh
+unset SSH_AUTH_SOCK
+ssh -o 'CheckHostIP no' -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' -o 'LogLevel #{log_level}' -o 'IdentityFile #{private_key_path}' -o 'IdentitiesOnly yes' -o 'UserKnownHostsFile /dev/null' $*
+    SCRIPT
   end
 
   def tempfile(content, mode=SAFE_MODE)

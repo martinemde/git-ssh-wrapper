@@ -3,41 +3,40 @@ require 'spec_helper'
 describe GitSSHWrapper do
   shared_examples_for "a GIT_SSH wrapper" do
     it "allows access to secure github repositories" do
-      lambda {
-        Open4.spawn("#{@git_ssh_wrapper.git_ssh} git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master", :stdout => '', :stderr => '')
-      }.should_not raise_error
+      `#{subject.cmd_prefix} git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master 2>&1`
+      $?.should be_true
     end
 
     it "has a script path that really exists" do
-      lambda { @git_ssh_wrapper.pathname.realpath }.should_not raise_error
+      lambda { subject.pathname.realpath }.should_not raise_error
     end
 
     it "formats a string with the GIT_SSH= in front of the script" do
-      @git_ssh_wrapper.git_ssh.should == "GIT_SSH='#{@git_ssh_wrapper.path}'"
+      subject.git_ssh.should == "GIT_SSH='#{subject.path}'"
     end
 
     it "disappears when unlinked" do
-      pathname = @git_ssh_wrapper.pathname
-      @git_ssh_wrapper.unlink
+      pathname = subject.pathname
+      subject.unlink
       pathname.should_not be_exist # ;_; syntax h8
     end
   end
 
   context "with a key string" do
-    before { @git_ssh_wrapper = described_class.new(:private_key => private_key) }
-    after { @git_ssh_wrapper.unlink }
+    subject { described_class.new(:private_key => private_key) }
+    after { subject.unlink }
     it_should_behave_like "a GIT_SSH wrapper"
   end
 
   context "with a key file" do
-    before { @git_ssh_wrapper = described_class.new(:private_key_path => private_key_path) }
-    after { @git_ssh_wrapper.unlink }
+    subject { described_class.new(:private_key_path => private_key_path) }
+    after { subject.unlink }
     it_should_behave_like "a GIT_SSH wrapper"
 
     it "should not delete the keyfile when unlinked" do
       pathname = Pathname.new(private_key_path)
       pathname.should be_exist
-      @git_ssh_wrapper.unlink
+      subject.unlink
       pathname.should be_exist
     end
   end
@@ -54,9 +53,18 @@ describe GitSSHWrapper do
   context "#with_git_ssh" do
     it "allows access to secure github repositories" do
       GitSSHWrapper.with_wrapper(:private_key => private_key) do |wrapper|
-        lambda {
-          Open4.spawn("#{wrapper.git_ssh} git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master", :stdout => '', :stderr => '')
-        }.should_not raise_error
+        `#{wrapper.git_ssh} git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master 2>&1`
+        $?.should be_true
+      end
+    end
+
+    it "allows less noisy ssh" do
+      GitSSHWrapper.with_wrapper(:private_key => private_key, :log_level => "info") do |wrapper|
+        `#{wrapper.git_ssh} git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master 2>&1`.should include("Warning: Permanently added 'github.com' (RSA) to the list of known hosts.")
+      end
+
+      GitSSHWrapper.with_wrapper(:private_key => private_key, :log_level => "error") do |wrapper|
+        `#{wrapper.git_ssh} git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master 2>&1`.should_not include("Warning: Permanently added 'github.com' (RSA) to the list of known hosts.")
       end
     end
 
