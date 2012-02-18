@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = "git-ssh-wrapper"
-  s.version     = "0.0.2.pre"
+  s.version     = "0.1.0"
   s.authors     = ["Martin Emde"]
   s.email       = ["martin.emde@gmail.com"]
   s.homepage    = "http://github.org/martinemde/git-ssh-wrapper"
