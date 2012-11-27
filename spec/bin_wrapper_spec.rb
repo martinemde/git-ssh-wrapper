@@ -28,11 +28,9 @@ describe 'git-ssh-wrapper script' do
   end
 
   it "can be used to bundle private gem repositories" do
-    system "rm #{ROOT_PATH.join('spec/private_gemfile.rb.lock')}"
     Bundler.with_clean_env do
       run_succeeds(bin, private_key_path, "bundle install --gemfile #{ROOT_PATH.join('spec/private_gemfile.rb')}")
     end
-    system "rm #{ROOT_PATH.join('spec/private_gemfile.rb.lock')}"
   end
 
   it "sets the GIT_SSH environment variable" do
