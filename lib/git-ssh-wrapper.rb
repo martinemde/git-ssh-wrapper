@@ -13,7 +13,7 @@ class GitSSHWrapper
   EXEC_MODE = 0700
 
   # command given as an array for Kernel#system
-  def self.system(command, options)
+  def self.run(command, options)
     with_wrapper(options) do |wrapper|
       wrapper.set_env
       system *command
@@ -69,7 +69,7 @@ class GitSSHWrapper
     tempfile(<<-SCRIPT, EXEC_MODE)
 #!/bin/sh
 unset SSH_AUTH_SOCK
-ssh -o 'CheckHostIP no' -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' -o 'LogLevel #{log_level}' -o 'IdentityFile #{private_key_path}' -o 'IdentitiesOnly yes' -o 'UserKnownHostsFile /dev/null' $*
+ssh -o 'CheckHostIP no' -o 'IdentitiesOnly yes' -o 'LogLevel #{log_level}' -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' -o 'UserKnownHostsFile /dev/null' -o 'IdentityFile #{private_key_path}' $*
     SCRIPT
   end
 

@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
+$:.unshift File.expand_path('lib', File.dirname(__FILE__))
+require 'git-ssh-wrapper/version'
+
 Gem::Specification.new do |s|
   s.name        = "git-ssh-wrapper"
-  s.version     = "0.2.0"
+  s.version     = GitSSHWrapper::VERSION
   s.authors     = ["Martin Emde"]
   s.email       = ["martin.emde@gmail.com"]
   s.homepage    = "http://github.org/martinemde/git-ssh-wrapper"
