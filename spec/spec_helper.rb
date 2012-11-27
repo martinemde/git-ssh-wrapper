@@ -10,7 +10,11 @@ require 'git-ssh-wrapper'
 require 'rspec'
 require 'open4'
 
-module TestPrivateKey
+module SpecHelpers
+  def exist
+    be_exist
+  end
+
   def private_key
     private_key_path.read
   end
@@ -21,5 +25,5 @@ module TestPrivateKey
 end
 
 RSpec.configure do |config|
-  config.include TestPrivateKey
+  config.include SpecHelpers
 end

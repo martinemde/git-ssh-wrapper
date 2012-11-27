@@ -1,0 +1,4 @@
+#!/bin/bash
+if [[ -x "$GIT_SSH" ]]; then
+  echo $GIT_SSH
+fi

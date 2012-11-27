@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+def bin
+  File.basename($0)
+end
+
+def usage
+  "usage:\t#{bin} ssh.key git command"
+end
+
+def error(message=nil)
+  abort [message,usage].compact.join("\n")
+end
+
+key, *command = *ARGV
+
+if key.nil?
+  error
+end
+
+if %w[--help -h help].include?(key)
+  puts "Run git commands using only the specified ssh private key."
+  puts
+  puts usage
+  exit 0
+end
+
+if command.empty?
+  error
+end
+
+if !File.exist?(key)
+  error "private key not found: #{key.inspect}"
+end
+
+require 'git-ssh-wrapper'
+GitSSHWrapper.system(command, :private_key_path => key)

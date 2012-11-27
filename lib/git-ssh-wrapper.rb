@@ -12,14 +12,12 @@ class GitSSHWrapper
   SAFE_MODE = 0600
   EXEC_MODE = 0700
 
-
-  def self.tempfile(content, mode=SAFE_MODE)
-    file = Tempfile.new("git-ssh-wrapper")
-    file << content
-    file.chmod(mode)
-    file.flush
-    file.close
-    file
+  # command given as an array for Kernel#system
+  def self.system(command, options)
+    with_wrapper(options) do |wrapper|
+      wrapper.set_env
+      system *command
+    end
   end
 
   def self.with_wrapper(options)
@@ -52,10 +50,16 @@ class GitSSHWrapper
   alias git_ssh cmd_prefix
 
   def set_env
+    @old_git_ssh = ENV['GIT_SSH']
     ENV['GIT_SSH'] = path
   end
 
+  def unset_env
+    ENV['GIT_SSH'] = @old_git_ssh
+  end
+
   def unlink
+    unset_env
     @tempfiles.each { |file| file.unlink }.clear
   end
 
@@ -70,7 +74,11 @@ ssh -o 'CheckHostIP no' -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication
   end
 
   def tempfile(content, mode=SAFE_MODE)
-    file = self.class.tempfile(content, mode)
+    file = Tempfile.new("git-ssh-wrapper")
+    file << content
+    file.chmod(mode)
+    file.flush
+    file.close
     @tempfiles << file
     file.path
   end

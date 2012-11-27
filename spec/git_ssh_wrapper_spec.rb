@@ -18,7 +18,7 @@ describe GitSSHWrapper do
     it "disappears when unlinked" do
       pathname = subject.pathname
       subject.unlink
-      pathname.should_not be_exist # ;_; syntax h8
+      pathname.should_not exist
     end
   end
 
