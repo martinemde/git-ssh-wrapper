@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'git-ssh script' do
-  let(:bin)       { ROOT_PATH.join('bin/git-ssh') }
+  let(:bin)       { GIT_SSH_BIN }
   let(:usage)     { "usage:\tgit-ssh ssh.key command\n" }
 
   it "prints usage information with no args" do
@@ -34,6 +34,6 @@ describe 'git-ssh script' do
 
   it "does not delete the keyfile" do
     run_succeeds(bin, private_key_path, 'status')
-    Pathname.new(private_key_path).should exist
+    private_key_path.should exist
   end
 end

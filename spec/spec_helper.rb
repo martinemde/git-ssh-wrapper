@@ -9,7 +9,12 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'git-ssh-wrapper'
 require 'rspec'
 
-ROOT_PATH = Pathname.new("..").expand_path(File.dirname(__FILE__))
+ROOT_PATH        = Pathname.new("..").expand_path(File.dirname(__FILE__))
+PRIVATE_KEY_PATH = ROOT_PATH.join('spec/test_key').realpath.freeze
+PRIVATE_KEY      = PRIVATE_KEY_PATH.read.freeze
+GIT_SSH_BIN      = ROOT_PATH.join('bin/git-ssh').freeze
+WRAPPER_BIN      = ROOT_PATH.join('bin/git-ssh-wrapper').freeze
+PRINT_ENV_SCRIPT = ROOT_PATH.join('spec/print_env').freeze
 
 module SpecHelpers
   def exist
@@ -17,11 +22,15 @@ module SpecHelpers
   end
 
   def private_key
-    private_key_path.read
+    PRIVATE_KEY
   end
 
   def private_key_path
-    Pathname.new('spec/test_key').realpath
+    PRIVATE_KEY_PATH
+  end
+
+  def print_env_script
+    PRINT_ENV_SCRIPT
   end
 
   def run_succeeds(bin, *args)

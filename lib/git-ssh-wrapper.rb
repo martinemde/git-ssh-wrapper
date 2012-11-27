@@ -69,8 +69,12 @@ class GitSSHWrapper
     tempfile(<<-SCRIPT, EXEC_MODE)
 #!/bin/sh
 unset SSH_AUTH_SOCK
-ssh -o 'CheckHostIP no' -o 'IdentitiesOnly yes' -o 'LogLevel #{log_level}' -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' -o 'UserKnownHostsFile /dev/null' -o 'IdentityFile #{private_key_path}' $*
+ssh -o CheckHostIP=no -o IdentitiesOnly=yes -o LogLevel=#{log_level} -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o UserKnownHostsFile=#{known_hosts_file} -o IdentityFile=#{private_key_path} $*
     SCRIPT
+  end
+
+  def known_hosts_file
+    @known_hosts_file ||= tempfile('')
   end
 
   def tempfile(content, mode=SAFE_MODE)

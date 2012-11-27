@@ -3,8 +3,8 @@
 Encapsulate the code you need to write out a permissive GIT\_SSH script that
 can be used to connect git to protected git@github.com repositories.
 
-Now includes a bin `git-ssh-wrapper` that can be used inline to call git with
-GIT\_SSH set to the private key you need.
+Includes two bin scripts, `git-ssh-wrapper` and `git-ssh` that can be used
+inline to call git with GIT\_SSH set properly. See examples below.
 
 ## What it does
 
@@ -15,6 +15,9 @@ only have saved as a string instead of written to a file.
 This is especially useful for scripts that need to automate connections to a
 server using keys that are not intended to be part of the system on which the
 script is running.
+
+This script is designed to *always work* even if hosts keys change or the ssh
+agent is being too paranoid or having a bad day.
 
 A common use case is connecting to github.com to retrieve repositories,
 submodules, or ref listings using read-only "deploy keys" or bundling a Gemfile
@@ -28,11 +31,13 @@ You can use the included command line tool to call git commands directly.
     $ git merge origin/master
     $ git-ssh-wrapper ~/.ssh/id_rsa git push origin master
 
+    $ git-ssh-wrapper ~/.ssh/id_rsa bundle install
+
 A shortcut command `git-ssh` is also included that inserts `git` automatically.
 
     $ git-ssh ~/.ssh/id_rsa fetch origin  # git fetch origin
 
-Most of the time you'll use this version if you're writing commands by hand.
+You'll probably use this version if you're writing commands by hand.
 
 ## Ruby Example
 
@@ -50,7 +55,7 @@ OR
 
     def get_refs
       private_key_data_string = get_key_data_somehow
-      GitSSHWrapper.new(:private_key => private_key_data_string) do |wrapper|
+      GitSSHWrapper.with_wrapper(:private_key => private_key_data_string) do |wrapper|
         wrapper.set_env
         `git ls-remote git@github.com:martinemde/git-ssh-wrapper.git`
       end
@@ -73,17 +78,21 @@ is set, git will use $GIT\_SSH instead of `ssh` to connect.
 The script generated will look something like this:
 (as long as I've kept this documentation up-to-date properly)
 
-    #!/bin/sh
     unset SSH_AUTH_SOCK
-    ssh -o 'CheckHostIP no' \
-        -o 'IdentitiesOnly yes' \
-        -o 'LogLevel LOG_LEVEL' \
-        -o 'StrictHostKeyChecking no' \
-        -o 'PasswordAuthentication no' \
-        -o 'UserKnownHostsFile /dev/null' \
-        -o 'IdentityFile PRIVATE_KEY_PATH' \
+    ssh -o CheckHostIP=no \
+        -o IdentitiesOnly=yes \
+        -o LogLevel=LOG_LEVEL \
+        -o StrictHostKeyChecking=no \
+        -o PasswordAuthentication=no \
+        -o UserKnownHostsFile=TEMPFILE \
+        -o IdentityFile=PRIVATE_KEY_PATH \
         $*
 
 The result is an ssh connection that won't use your ssh-added keys, won't prompt
 for passwords, doesn't save known hosts and doesn't require strict host key
 checking.
+
+A tempfile is generated to absorb known hosts to prevent these constant warnings:
+`Warning: Permanently added 'xxx' (RSA) to the list of known hosts.`
+
+The tempfile is cleaned when the wrapper is unlinked or the program exits.

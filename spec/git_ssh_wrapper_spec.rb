@@ -34,10 +34,9 @@ describe GitSSHWrapper do
     it_should_behave_like "a GIT_SSH wrapper"
 
     it "should not delete the keyfile when unlinked" do
-      pathname = Pathname.new(private_key_path)
-      pathname.should be_exist
+      private_key_path.should exist
       subject.unlink
-      pathname.should be_exist
+      private_key_path.should exist
     end
   end
 

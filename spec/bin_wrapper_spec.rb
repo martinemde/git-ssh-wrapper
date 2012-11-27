@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'git-ssh-wrapper script' do
   let(:print_env) { ROOT_PATH.join('spec/print_env') }
-  let(:bin)       { ROOT_PATH.join('bin/git-ssh-wrapper') }
+  let(:bin)       { WRAPPER_BIN }
   let(:usage)     { "usage:\tgit-ssh-wrapper ssh.key command\n" }
 
   it "prints usage information with no args" do
@@ -29,12 +29,12 @@ describe 'git-ssh-wrapper script' do
   end
 
   it "sets the GIT_SSH environment variable" do
-    run_succeeds(bin, private_key_path, print_env).chomp.should =~ /git-ssh-wrapper/ # the tempfile includes this in the name
+    run_succeeds(bin, private_key_path, print_env_script).chomp.should =~ /git-ssh-wrapper/ # the tempfile includes this in the name
   end
 
   it "cleans up after execution" do
     run_succeeds(bin, private_key_path, 'true')
-    `#{print_env}`.chomp.should be_empty
+    `#{print_env_script}`.chomp.should be_empty
     ENV['GIT_SSH'].should be_nil
   end
 
@@ -45,6 +45,6 @@ describe 'git-ssh-wrapper script' do
 
   it "does not delete the keyfile" do
     run_succeeds(bin, private_key_path, 'true')
-    Pathname.new(private_key_path).should exist
+    private_key_path.should exist
   end
 end
