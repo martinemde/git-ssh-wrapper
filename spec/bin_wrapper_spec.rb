@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'git-ssh-wrapper script' do
-  let(:print_env) { ROOT_PATH.join('spec/print_env') }
   let(:bin)       { WRAPPER_BIN }
   let(:usage)     { "usage:\tgit-ssh-wrapper ssh.key command\n" }
 
@@ -26,6 +25,14 @@ describe 'git-ssh-wrapper script' do
 
   it "allows access to secure github repositories" do
     run_succeeds(bin, private_key_path, 'git ls-remote git@github.com:martinemde/git-ssh-wrapper.git refs/heads/master')
+  end
+
+  it "can be used to bundle private gem repositories" do
+    system "rm #{ROOT_PATH.join('spec/private_gemfile.rb.lock')}"
+    Bundler.with_clean_env do
+      run_succeeds(bin, private_key_path, "bundle install --gemfile #{ROOT_PATH.join('spec/private_gemfile.rb')}")
+    end
+    system "rm #{ROOT_PATH.join('spec/private_gemfile.rb.lock')}"
   end
 
   it "sets the GIT_SSH environment variable" do

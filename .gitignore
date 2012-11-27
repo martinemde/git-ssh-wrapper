@@ -2,3 +2,4 @@ pkg/*
 *.gem
 .bundle
 Gemfile.lock
+spec/private_gemfile.rb.lock
