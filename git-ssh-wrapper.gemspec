@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = "git-ssh-wrapper"
-  s.version     = "0.1.0"
+  s.version     = "0.2.0"
   s.authors     = ["Martin Emde"]
   s.email       = ["martin.emde@gmail.com"]
   s.homepage    = "http://github.org/martinemde/git-ssh-wrapper"
@@ -10,7 +10,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", '~> 2.0'
-  s.add_development_dependency "open4"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
