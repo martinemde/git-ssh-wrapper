@@ -29,7 +29,7 @@ describe 'git-ssh script' do
 
   it "exits with the status of the child command" do
     run_succeeds(bin, private_key_path, 'status')
-    run_fails(bin, private_key_path, 'notfound')
+    run_fails(bin, private_key_path, 'thisisnotacommandingit')
   end
 
   it "does not delete the keyfile" do
