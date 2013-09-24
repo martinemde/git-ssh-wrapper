@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.org/martinemde/git-ssh-wrapper"
   s.summary     = %q{Generate a permissive GIT_SSH wrapper script on the fly}
   s.description = %q{Generate a permissive GIT_SSH wrapper script using a private key string or file for use with git commands that need ssh.}
+  s.license = 'MIT'
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", '~> 2.0'
